@@ -4,6 +4,8 @@ Created on Tue Feb  2 11:08:50 2021
 
 @author: Suyash Singh
 """
+import math
+
 import pygame, sys
 from pygame.locals import *
 pygame.init()
@@ -44,6 +46,7 @@ class Striker:
         self.x=0
         self.y=0
         self.radius=50
+        self.velocity=0
         
     def draw(self,position):
         self.x=position[0]
@@ -51,19 +54,29 @@ class Striker:
         pygame.draw.circle(screen,purple,[self.x,self.y],self.radius)
         
         
-def draw_window():
-    board=Board()
+def draw_window(player,board,striker,unit_vector):
     board.draw()
-    striker=Striker()
-    mouseX,mouseY=pygame.mouse.get_pos()
-    striker.draw([mouseX,board.midLower[1]])
+    if striker.velocity==0:
+        if player==1:
+            mouseX,mouseY=pygame.mouse.get_pos()
+            striker.draw([mouseX,board.midLower[1]])
+        else:
+            mouseX,mouseY=pygame.mouse.get_pos()
+            striker.draw([mouseX,board.midUpper[1]])
+    else:
+        striker.draw([striker.x+10*unit_vector[0],striker.y+10*unit_vector[1]])
+        striker.velocity-=1
         
 def main():
     lowerPlayer=True
-    
     running=True
+    board=Board()
+    striker=Striker()
+    player=1
+    changePlayer=False
+    unit_vector=[0,0]
+    
     while running:
-        
         events=pygame.event.get()
         for event in events:
             if event.type==pygame.QUIT:
@@ -71,9 +84,22 @@ def main():
             if event.type==pygame.KEYDOWN:
                 if event.key==pygame.K_ESCAPE:
                     running=False
-        screen.fill(blue)       
-        draw_window()
                     
+        if pygame.mouse.get_pressed()[0]==1 and striker.velocity==0:
+            striker.velocity=50
+            mouseX,mouseY=pygame.mouse.get_pos()
+            changePlayer=True
+            vector=[mouseX-striker.x,mouseY-striker.y]
+            magnitude=math.sqrt(vector[0]*vector[0]+vector[1]*vector[1])
+            unit_vector=[vector[0]/magnitude,vector[1]/magnitude]
+            
+        if striker.velocity==0 and changePlayer:
+            changePlayer=False
+            player=not player
+            
+        screen.fill(blue)       
+        draw_window(player,board,striker,unit_vector)
+        
         pygame.display.update()
         pygame.time.Clock().tick(40)
     pygame.quit()
