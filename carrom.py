@@ -1,14 +1,10 @@
+import pygame
 from coin import CarromMen, Queen, Striker
 from pygame import Rect
 from pygame import Vector2
-import logging
-import sys
 from math import sqrt
 from itertools import combinations
 from board import Board
-
-logging.basicConfig(stream=sys.stderr, level=logging.INFO)
-
 
 class Carrom:
     def __init__(self, board_rect: Rect):
@@ -57,7 +53,6 @@ class Carrom:
             coins.append(self.striker)
         if not self.pocketed_queen:
             coins.append(self.queen)
-        """ Return true there exist some coin which is moving"""
         return any(coin.check_moving() for coin in coins)
 
     def update(self, dt, decelerate, e):
@@ -71,7 +66,6 @@ class Carrom:
         for coin1, coin2 in combinations(coins, 2):
             if coin1.check_collision(coin2):
                 if not self.first_collision and (coin1.check_moving() or coin2.check_moving()):
-                    """ Detect the first collision between coins """
                     self.first_collision = [coin1, coin2]
                 coin1.collide(coin2, e)
 
@@ -95,7 +89,6 @@ class Carrom:
                 self.player_coins[player].append(coin)
                 coin.reset()
                 self.foul_count[player] -= 1
-                logging.info(self.get_player(player) + " Coin Reset, Foul Reduced")
             else:
                 assert not (self.has_queen[0] and self.has_queen[1])
                 if self.pocketed_queen and self.has_queen[player]:
@@ -104,7 +97,7 @@ class Carrom:
                     self.pocketed_queen = False
                     self.queen.reset()
                     self.foul_count[player] -= 1
-                    logging.info(self.get_player(player) + " Queen Reset, Foul Reduced")
+                    message(self.get_player(player) + " Queen Reset, Foul Reduced")
                 break
 
     def __update_turn__(self, change: bool):
@@ -113,7 +106,7 @@ class Carrom:
 
         if not self.player_coins[self.player_turn]:
             if not self.pocketed_queen:
-                logging.warning(self.current_player() + " Pocketed All Coins without Capturing Queen,"
+                message(self.current_player() + " Pocketed All Coins without Capturing Queen,"
                                                         " Incurs Heavy Penalty")
                 self.foul_count[self.player_turn] += 2
                 self.__update_turn__(change=True)
@@ -122,7 +115,7 @@ class Carrom:
                 self.winner = self.player_turn
                 self.reason = "Player pocketed all coins"
                 self.game_over = True
-                logging.debug(self.current_player() + " Pocketed All Coins, Declared Winner!!")
+                message(self.current_player() + " Pocketed All Coins, Declared Winner!!")
                 return
         other_player = (self.player_turn + 1) % 2
         if not self.player_coins[other_player]:
@@ -131,12 +124,9 @@ class Carrom:
                 self.player_coins[other_player].append(coin)
                 coin.reset()
                 self.foul_count[self.player_turn] += 2
-                logging.warning(self.current_player() + " Pocketed All Enemy Coins without Capturing Queen,"
-                                                        " Incurs Heavy Penalty")
                 if self.pocketed_queen:
                     self.queen_on_hold = False
                     self.pocketed_queen = False
-                    logging.debug(self.current_player() + " Pocketed All Enemy Coins When Queen On Hold, Queen Reset")
                     self.queen.reset()
 
                 self.__update_turn__(change=True)
@@ -145,17 +135,13 @@ class Carrom:
                 self.winner = other_player
                 self.reason = "Player pocketed all of other players coins"
                 self.game_over = True
-                logging.debug(self.current_player() + " Pocketed All Enemy Coins, " +
-                              self.get_player(other_player) + " Declared Winner!!")
                 return
 
         self.current_pocketed = []
         self.pocketed_striker = False
         self.striker.velocity = Vector2()
         if change:
-            logging.debug(self.current_player() + " Lost Turn.")
             self.player_turn = (self.player_turn + 1) % 2
-            logging.debug(self.current_player() + " Turn Begins")
 
     def current_player(self):
         return "WHITE" if self.player_turn == 0 else "BLACK"
@@ -172,22 +158,18 @@ class Carrom:
             if not isinstance(coin, Queen):
                 if self.player_turn != coin.get_player():
                     self.foul_count[self.player_turn] += 1
-                    logging.warning(self.current_player() + " Incurred Foul Hitting Other Players Coin")
             self.first_collision = None
         if self.pocketed_striker:
             if self.pocketed_queen and not self.has_queen[0] and not self.has_queen[1]:
                 self.queen_on_hold = False
                 self.pocketed_queen = False
-                logging.debug(self.current_player() + " Pocketed Striker, Queen Reset")
                 self.queen.reset()
             for coin in self.current_pocketed:
                if coin.get_player() == self.player_turn:
                     self.player_coins[coin.get_player()].append(coin)
                     self.pocketed_coins[coin.get_player()].remove(coin)
-                    logging.debug(self.current_player() + " Pocketed Striker, Coin Reset")
                     coin.reset()
             self.foul_count[self.player_turn] += 1
-            logging.warning(self.current_player() + " Pocketed Striker, Incurred Foul")
             self.__update_turn__(change=True)
 
         elif self.pocketed_queen and not self.has_queen[0] and not self.has_queen[1]:
@@ -195,7 +177,6 @@ class Carrom:
                 if coin.get_player() == self.player_turn:
                     self.has_queen[self.player_turn] = True
                     self.queen_on_hold = False
-                    logging.debug(self.current_player() + " Pocketed Queen, With Follow")
                     self.__update_turn__(change=False)
                     break
             else:
@@ -203,21 +184,17 @@ class Carrom:
                     self.queen_on_hold = False
                     self.pocketed_queen = False
                     self.queen.reset()
-                    logging.debug(self.current_player() + " Lost Queen From Hold, No Follow")
                     self.__update_turn__(change=True)
                 else:
                     self.queen_on_hold = True
-                    logging.debug(self.current_player() + " Pocketed Queen, On Hold")
                     self.__update_turn__(change=False)
 
         else:
             for coin in self.current_pocketed:
                 if coin.get_player() == self.player_turn:
-                    logging.debug(self.current_player() + " Pocketed Coin(s)")
                     self.__update_turn__(change=False)
                     break
             else:
-                logging.debug(self.current_player() + " Pocketed Nothing")
                 self.__update_turn__(change=True)
 
     def draw(self, win):
