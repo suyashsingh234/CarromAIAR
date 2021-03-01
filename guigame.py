@@ -1,23 +1,21 @@
 from carrom import Carrom
 from pygame import Rect
 import pygame
-import argparse
 from create_button import create_button
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--player1', '-1')
-parser.add_argument('--player2', '-2')
-parser.add_argument('--width', '-w', type=int, default=700, help="carrom window width")
-parser.add_argument("--max_angle", type=float, default=80, help="maximum striker angle")
-parser.add_argument("--max_speed", type=float, default=40, help="maximum striker speed")
-parser.add_argument("--dt", type=float, default=0.1, help="simulation interval")
-parser.add_argument("--decelerate", type=float, default=0.3, help="deceleration due to friction")
-parser.add_argument("--e", type=float, default=0.9, help="co-efficient of restitution for collisions")
-parser.add_argument("--num_updates", type=int, default=10, help="number of updates before drawing to screen")
-parser.add_argument("--num_random_choices", type=int, default=40, help="number of search points for random ai")
-parser.add_argument("--no_start_menu", action="store_true", help="disable start menu")
-parser.add_argument("--fps", type=int, default=60, help="frames per second")
-args = parser.parse_args()
+class args:
+    player1=1
+    player2=2
+    width=700
+    max_angle=80
+    max_speed=40
+    dt=0.1
+    decelerate=0.3
+    e=0.9
+    num_updates=10
+    fps=60
+
+args = args()
 
 width = int(args.width)
 dt = float(args.dt)
