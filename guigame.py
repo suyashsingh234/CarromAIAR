@@ -1,13 +1,12 @@
 from carrom import Carrom
 from pygame import Rect
 import pygame
-from ai import ai
 import argparse
+from create_button import create_button
 
-player_choices = ['ai', 'random', 'human']
-parser = argparse.ArgumentParser(description="PyCarrom is a two player carrom game played between humans or ai")
-parser.add_argument('--player1', '-1', choices=player_choices, default='human', help="specify player type")
-parser.add_argument('--player2', '-2', choices=player_choices, default='human', help="specify player type")
+parser = argparse.ArgumentParser()
+parser.add_argument('--player1', '-1')
+parser.add_argument('--player2', '-2')
 parser.add_argument('--width', '-w', type=int, default=700, help="carrom window width")
 parser.add_argument("--max_angle", type=float, default=80, help="maximum striker angle")
 parser.add_argument("--max_speed", type=float, default=40, help="maximum striker speed")
@@ -146,9 +145,6 @@ while True:
             carrom.board.show_notification(win, "AI thinking")
             pygame.display.flip()
             handle_events()
-            """ let the ai make the decision for the striker """
-            ai(carrom, max_angle, max_speed, decelerate, e, dt)
-            """ just indicate to the user, the ai's decision """
             carrom.draw(win)
             carrom.board.draw_striker_arrow_pointer(win, carrom.striker, max_speed)
             carrom.board.show_notification(win, "AI decided")
@@ -162,9 +158,6 @@ while True:
             carrom.board.show_notification(win, "Random AI thinking")
             pygame.display.flip()
             handle_events()
-            """ let the random ai make the decision for the striker """
-            random_ai(carrom, max_angle, max_speed, decelerate, e, dt, permit_orientation, num_random_choices)
-            """ just indicate to the user, the random ai's decision """
             carrom.draw(win)
             carrom.board.draw_striker_arrow_pointer(win, carrom.striker, max_speed)
             carrom.board.show_notification(win, "Random AI decided")
