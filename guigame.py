@@ -3,7 +3,6 @@ from pygame import Rect
 import pygame
 from ai import ai
 import argparse
-from start_menu import start_window, create_button
 
 player_choices = ['ai', 'random', 'human']
 parser = argparse.ArgumentParser(description="PyCarrom is a two player carrom game played between humans or ai")
@@ -38,10 +37,7 @@ max_speed = float(args.max_speed)
 fps = int(args.fps)
 
 while True:
-    if args.no_start_menu:
-        player1, player2 = args.player1, args.player2
-    else:
-        player1, player2 = start_window(width, fps)
+    player1, player2 = args.player1, args.player2
 
     """ This is used in case of random ai"""
     num_random_choices = int(args.num_random_choices)
@@ -92,7 +88,6 @@ while True:
                 if event_.type == pygame.QUIT:
                     """ If user requested to QUIT, then force quit """
                     pygame.quit()
-                    quit()
 
             """ Obtain all pressed keys """
             pressed = pygame.key.get_pressed()
