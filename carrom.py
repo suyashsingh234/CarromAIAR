@@ -97,7 +97,6 @@ class Carrom:
                     self.pocketed_queen = False
                     self.queen.reset()
                     self.foul_count[player] -= 1
-                    message(self.get_player(player) + " Queen Reset, Foul Reduced")
                 break
 
     def __update_turn__(self, change: bool):
@@ -106,8 +105,6 @@ class Carrom:
 
         if not self.player_coins[self.player_turn]:
             if not self.pocketed_queen:
-                message(self.current_player() + " Pocketed All Coins without Capturing Queen,"
-                                                        " Incurs Heavy Penalty")
                 self.foul_count[self.player_turn] += 2
                 self.__update_turn__(change=True)
                 return
@@ -115,7 +112,6 @@ class Carrom:
                 self.winner = self.player_turn
                 self.reason = "Player pocketed all coins"
                 self.game_over = True
-                message(self.current_player() + " Pocketed All Coins, Declared Winner!!")
                 return
         other_player = (self.player_turn + 1) % 2
         if not self.player_coins[other_player]:

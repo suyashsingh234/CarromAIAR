@@ -124,7 +124,6 @@ while True:
     font = pygame.font.Font('freesansbold.ttf', carrom.board.frame_width)
     winner = carrom.get_player(carrom.winner)
     print("Game Over, won by", winner, players[carrom.winner])
-    """ Indicate the winner """
     text = font.render("WINNER " + winner, True, (0, 0, 255))
     text_rect = text.get_rect()
     text_rect.center = carrom.board.board.center
