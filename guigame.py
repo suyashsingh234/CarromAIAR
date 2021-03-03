@@ -1,7 +1,7 @@
 from carrom import Carrom
 from pygame import Rect
 import pygame
-from create_button import create_button
+from start_menu import start_window, create_button
 
 class args:
     player1=1
@@ -29,7 +29,7 @@ max_speed = float(args.max_speed)
 fps = int(args.fps)
 
 while True:
-    player1, player2 = args.player1, args.player2
+    player1, player2 = start_window(args.width,args.fps)
 
     pygame.init()
     win = pygame.display.set_mode((width, width))
