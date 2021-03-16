@@ -2,7 +2,7 @@ from carrom import Carrom
 from pygame import Rect
 import pygame
 from start_menu import start_window, create_button
-
+from ai import ai
 class args:
     player1=1
     player2=2
@@ -30,6 +30,11 @@ fps = int(args.fps)
 
 while True:
     player1, player2 = start_window(args.width,args.fps)
+    print(player1)
+    print(player2)
+    """ Printing game constraints """
+    print("Parameters are width:", width, "dt:", dt, "decelerate:", decelerate, "e:", e, "max_angle:", max_angle,
+          "max_speed:", max_speed, "num_updates:", num_updates, "fps:", fps, "player1:", player1, "player2:", player2)
 
     pygame.init()
     win = pygame.display.set_mode((width, width))
@@ -64,23 +69,25 @@ while True:
             pressed = pygame.key.get_pressed()
 
             if pressed[pygame.K_a] or pressed[pygame.K_LEFT]:
+                print(carrom_.striker.position.x)
                 carrom_.striker.position.x -= 4 if not pressed[pygame.K_LSHIFT] else 0.5
             if pressed[pygame.K_d] or pressed[pygame.K_RIGHT]:
+                print(carrom_.striker.position.x)
                 carrom_.striker.position.x += 4 if not pressed[pygame.K_LSHIFT] else 0.5
 
             if pressed[pygame.K_s] or pressed[pygame.K_DOWN]:
+                print(striker_speed)
                 striker_speed -= max_speed * 0.05 if not pressed[pygame.K_LSHIFT] else max_speed * 0.005
             if pressed[pygame.K_w] or pressed[pygame.K_UP]:
+                print(striker_speed)
                 striker_speed += max_speed * 0.05 if not pressed[pygame.K_LSHIFT] else max_speed * 0.005
 
             if pressed[pygame.K_q]:
+                print(striker_angle)
                 striker_angle += max_angle * 0.05 if not pressed[pygame.K_LSHIFT] else max_angle * 0.005
             if pressed[pygame.K_e]:
+                print(striker_angle)
                 striker_angle -= max_angle * 0.05 if not pressed[pygame.K_LSHIFT] else max_angle * 0.005
-
-            if pressed[pygame.K_r] and permit_rotation:
-                coins_orientation += 1 if not pressed[pygame.K_LSHIFT] else -1
-                carrom_.rotate_carrom_men(coins_orientation)
 
             carrom_.striker.position.x = min(x_limits[1], max(x_limits[0], carrom_.striker.position.x))
             striker_speed = min(max_speed, max(striker_speed, 0))
@@ -99,8 +106,25 @@ while True:
 
     while not carrom.game_over:
         carrom.striker.position = carrom.board.get_striker_position(carrom.player_turn)
-        handle_user_input(win, carrom)
-        pygame.time.delay(100)
+        if players[carrom.player_turn] == "ai" :
+            """ Just refresh the board """
+            carrom.draw(win)
+            carrom.board.show_notification(win, "AI thinking")
+            pygame.display.flip()
+            handle_events()
+            """ let the ai make the decision for the striker """
+            ai(carrom, max_angle, max_speed, decelerate, e, dt)
+            """ just indicate to the user, the ai's decision """
+            carrom.draw(win)
+            carrom.board.draw_striker_arrow_pointer(win, carrom.striker, max_speed)
+            carrom.board.show_notification(win, "AI decided")
+            pygame.display.flip()
+            handle_events()
+            """wait for some time """
+            pygame.time.delay(100)
+        else :
+            handle_user_input(win, carrom)
+            pygame.time.delay(100)
 
         i = 0
         while carrom.check_moving():
@@ -147,17 +171,3 @@ while True:
             if quit_button_rect.collidepoint(*mouse_pos):
                 pygame.quit()
                 quit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
