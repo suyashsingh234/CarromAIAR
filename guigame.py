@@ -102,6 +102,7 @@ while True:
             carrom_.board.show_notification(win_, "WHITE'S TURN" if carrom.player_turn == 0 else "BLACK'S TURN")
             carrom_.board.draw_striker_arrow_pointer(win_, carrom_.striker, max_speed)
             pygame.display.update()
+            pygame.image.save(win,"temp.jpeg")
 
 
     while not carrom.game_over:
