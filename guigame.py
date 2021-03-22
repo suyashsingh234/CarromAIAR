@@ -19,7 +19,8 @@ class runner(Thread):
                 self.game.gamerunner()
             self.game.updater()
         self.game.game_ender() 
-
+    def board_state_sender(self):
+        return self.game.board_state() 
 
 
 class Guigame:
@@ -109,6 +110,13 @@ class Guigame:
     # run this and check for the game status 
     def check_game_over(self):
         return self.carrom.game_over
+    #expose the pygame surface 
+    def board_state(self):
+        try:
+            pygame.image.save(self.win,"tmp.jpg")
+            return 0
+        except:
+            return 1
     # if game not over than keep this running in the while 
     def gamerunner(self):
         self.carrom.striker.position = self.carrom.board.get_striker_position(self.carrom.player_turn)
