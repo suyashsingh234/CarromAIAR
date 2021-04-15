@@ -17,6 +17,7 @@ class Carrom:
             + [CarromMen(0, board.coin_radius, Board.COIN_MASS, self.center, board.container) for _ in range(6)]\
             + [CarromMen(1, board.coin_radius, Board.COIN_MASS, self.center, board.container) for _ in range(6)]
         self.rotate_carrom_men(60)
+        self.isPocket=False
 
         self.player_coins = ([], [])
         for coin in self.coins:
@@ -132,7 +133,7 @@ class Carrom:
                 self.reason = "Player pocketed all of other players coins"
                 self.game_over = True
                 return
-
+        self.isPocket= len(self.current_pocketed)>0
         self.current_pocketed = []
         self.pocketed_striker = False
         self.striker.velocity = Vector2()

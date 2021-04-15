@@ -3,7 +3,7 @@ from pygame import Rect
 import pygame
 from start_menu import start_window, create_button
 import cv2
-#from ai import ai
+from ai import AI
 import time
 from threading import Thread
 
@@ -35,6 +35,7 @@ class Guigame:
         self.e=0.9
         self.num_updates=10
         self.fps=60
+        self.ai=AI()
 # Add gamestarter to the start with the camera 
     def gamestarter (self):
         self.player1, self.player2 = start_window(self.width,self.fps)
@@ -122,19 +123,7 @@ class Guigame:
         self.carrom.striker.position = self.carrom.board.get_striker_position(self.carrom.player_turn)
         if self.players[self.carrom.player_turn] == "ai" :
             """ Just refresh the board """
-            """
-            carrom.draw(win)
-            carrom.board.show_notification(win, "AI thinking")
-            pygame.display.flip()
-            handle_events()
-            ai(carrom, max_angle, max_speed, decelerate, e, dt)
-            carrom.draw(win)
-            carrom.board.draw_striker_arrow_pointer(win, carrom.striker, max_speed)
-            carrom.board.show_notification(win, "AI decided")
-            pygame.display.flip()
-            handle_events()
-            pygame.time.delay(100)
-            """
+            self.ai.play(self.carrom)
         else :
             self.handle_user_input(self.win, self.carrom)
             pygame.time.delay(100)
