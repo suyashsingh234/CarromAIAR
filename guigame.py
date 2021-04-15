@@ -7,22 +7,6 @@ from ai import AI
 import time
 from threading import Thread
 
-class runner(Thread):
-    def __init__ (self):
-        Thread.__init__(self)
-        self.game = Guigame()
-
-    def run(self):
-        self.game.gamestarter()
-        while True :
-            if not self.game.check_game_over():
-                self.game.gamerunner()
-            self.game.updater()
-        self.game.game_ender() 
-    def board_state_sender(self):
-        return self.game.board_state() 
-
-
 class Guigame:
     def __init__(self):
         self.player1=1
@@ -94,7 +78,9 @@ class Guigame:
             if pressed[pygame.K_e]:
                 print(striker_angle)
                 striker_angle -= self.max_angle * 0.05 if not pressed[pygame.K_LSHIFT] else self.max_angle * 0.005
-
+            if pressed[pygame.K_z]:
+                pygame.quit()
+                quit()
             carrom_.striker.position.x = min(x_limits[1], max(x_limits[0], carrom_.striker.position.x))
             striker_speed = min(self.max_speed, max(striker_speed, 0))
             striker_angle = min(self.max_angle, max(-self.max_angle, striker_angle))
@@ -174,3 +160,23 @@ class Guigame:
             if self.quit_button_rect.collidepoint(*mouse_pos):
                 pygame.quit()
                 quit()
+    def game_quit (self):
+        pygame.quit()
+        quit()
+
+class runner(Thread,Guigame):
+    def __init__ (self):
+        Thread.__init__(self)
+        self.game = Guigame()
+
+    def run(self):
+        self.game.gamestarter()
+        while True :
+            if not self.game.check_game_over():
+                self.game.gamerunner()
+            self.game.updater()
+        self.game.game_ender() 
+    def board_state_sender(self):
+        return self.game.board_state() 
+
+
