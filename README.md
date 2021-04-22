@@ -8,3 +8,7 @@ Put marker.png in front of your camera to display the game over the surface. For
 ###Requirements 
 install Pygame 
 intall opencv contrib
+
+References:
+
+https://github.com/tdrmk/pycarrom
