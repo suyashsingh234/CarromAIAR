@@ -120,7 +120,7 @@ class Guigame:
             if self.carrom.check_moving():
                 i += 1
                 if i % self.num_updates == 0:
-                    self.clock.tick(60)
+                    self.clock.tick(self.fps)
                     self.carrom.draw(self.win)
                     self.carrom.board.show_notification(self.win, "SIMULATING..")
                     pygame.display.flip()
@@ -150,7 +150,13 @@ class Guigame:
         pygame.display.update()
     #keep this runnung in the while
     def updater(self):
-        self.clock.tick(10)
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_f]:
+                self.fps=1000000
+        else:
+            self.fps=60
+
+        self.clock.tick(self.fps)
         self.handle_events()
         if pygame.mouse.get_pressed()[0]:
             mouse_pos = pygame.mouse.get_pos()
