@@ -28,7 +28,6 @@ def ar_runner():
             else :
                 foto = cv2.imread("tmp.jpg")
                 if len(corners_dest) > 0:
-                    foto = utils.read_img("tmp.jpg",marker)
                     origin, dest = utils.get_points(ids_or, ids_dest, corners_or, corners_dest)
                     warped_img = utils.warp_image(origin, dest, (frame.shape[0], frame.shape[1]), foto)
                     frame = utils.merge_images(warped_img, frame)

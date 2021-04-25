@@ -28,16 +28,12 @@ def warp_image(origin, dest, shape, image):
     dst = cv2.warpPerspective(image, homography, dsize=(shape[1], shape[0]))
     return dst
 
-def merge_images(warped_img, frame):
-    aux = warped_img
-    aux = np.where(aux == 0, 1, aux)
-    aux = np.where(aux != 1, 0, aux)
-    frame *= aux
-    frame += warped_img
+def merge_images(img, frame):
+    img1 = img
+    img1 = np.where(img1 == 0, 1, img1)
+    img1 = np.where(img1 != 1, 0, img1)
+    frame *= img1
+    frame += img
     np.clip(frame, 0, 255, out=frame)
     return frame
-    
-def read_img(img_path, gabarito):
-    foto = cv2.imread(img_path)
-    foto = cv2.resize(foto, (gabarito.shape[1], gabarito.shape[0]))
-    return foto
+
