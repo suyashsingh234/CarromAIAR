@@ -6,6 +6,8 @@ import cv2
 from ai import AI
 import time
 from threading import Thread
+import socket
+import json
 
 class Guigame:
     def __init__(self):
@@ -25,6 +27,24 @@ class Guigame:
         self.player1, self.player2 = start_window(self.width,self.fps)
         print(self.player1)
         print(self.player2)
+        if(self.player1 == "network"):
+            self.connection = socket.socket()
+            #self.connectip=input("Enter the ip address of the server to connect to \n")
+            self.connectip = '20.198.98.10'
+            self.connection.connect((self.connectip,9999))
+            self.player1 = self.connection.recv(1024).decode('ascii')
+            self.player2 = self.connection.recv(1024).decode('ascii')
+            start = 0
+            print(self.player1)
+            print(self.player2)
+            while (start == 0):
+                print("waiting to start game ")
+                if (self.player1 == "network" and self.player2 == "human"):
+                    start = 1
+                else :
+                    start = self.connection.recv(1024).decode('ascii')
+                print(start)
+
         """ Printing game constraints """
         print("Parameters are width:", self.width, "dt:", self.dt, "decelerate:", self.decelerate, "e:", self.e, "max_angle:", self.max_angle,
             "max_speed:", self.max_speed, "num_updates:", self.num_updates, "fps:", self.fps, "player1:", self.player1, "player2:", self.player2)
@@ -33,7 +53,9 @@ class Guigame:
         pygame.display.set_caption("PyCarrom: WHITE(%s) vs BLACK(%s)" % (self.player1, self.player2))
         self.carrom = Carrom(Rect(0, 0, self.width, self.width))
         self.players = [self.player1, self.player2]
+        print(self.players)
         self.clock = pygame.time.Clock()
+        pygame.display.update()
     # Will be called inside the class 
     def handle_events(self):
         for event_ in pygame.event.get():
@@ -89,6 +111,17 @@ class Guigame:
 
             if pressed[pygame.K_SPACE]:
                 get_user_input = False
+                if("network" in self.players):
+                    move=[striker_speed,-90-striker_angle if carrom_.player_turn == 0 else 90+striker_angle,carrom_.striker.position.x]
+                    print(move)
+                    y = json.dumps(move)
+                    print(type(y))
+                    try :
+                        self.connection.send(y.encode('ascii'))
+                    except :
+                        print("the game has ended due to some issue")
+                        self.connection.close()
+                #send data to the server to be communicated 
 
             carrom_.draw(win_)
             carrom_.board.show_notification(win_, "WHITE'S TURN" if carrom_.player_turn == 0 else "BLACK'S TURN")
@@ -110,6 +143,15 @@ class Guigame:
         if self.players[self.carrom.player_turn] == "ai" :
             """ Just refresh the board """
             self.ai.play(self.carrom)
+        elif self.players[self.carrom.player_turn] == "network":
+            print("waiting for input from the network")
+            data = self.connection.recv(4096).decode('ascii')
+            d = json.loads(data)
+            if (d[0] == str(self.players.index('network')) and d[1] == "end"):
+                self.game_ender()
+            else :
+                self.carrom.striker.position.x = d[2]
+                self.carrom.striker.velocity.from_polar((d[0],d[1]))
         else :
             self.handle_user_input(self.win, self.carrom)
             pygame.time.delay(100)
@@ -126,6 +168,9 @@ class Guigame:
                     pygame.display.flip()
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
+                            if ("network" in self.players):
+                                self.connection.close()
+                            
                             pygame.quit()
                             quit()
         self.carrom.apply_rules()
@@ -136,6 +181,8 @@ class Guigame:
         font = pygame.font.Font('freesansbold.ttf', self.carrom.board.frame_width)
         winner = self.carrom.get_player(self.carrom.winner)
         print("Game Over, won by", winner, self.players[self.carrom.winner])
+        if ("network" in self.players):
+            self.connection.close()
         text = font.render("WINNER " + winner, True, (0, 0, 255))
         text_rect = text.get_rect()
         text_rect.center = self.carrom.board.board.center
@@ -152,9 +199,14 @@ class Guigame:
     def updater(self):
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_f]:
+            if ("network" in self.players):
+                print("cant fast forward a game over the network")
+            else :
                 self.fps=1000000
         else:
             self.fps=60
+        if pressed[pygame.K_z]:
+            self.game_quit
 
         self.clock.tick(self.fps)
         self.handle_events()
@@ -167,6 +219,8 @@ class Guigame:
                 pygame.quit()
                 quit()
     def game_quit (self):
+        if ("network" == self.player1 or self.player2 == "network"):
+            self.connection.close()
         pygame.quit()
         quit()
 
@@ -185,4 +239,5 @@ class runner(Thread,Guigame):
     def board_state_sender(self):
         return self.game.board_state() 
 
-
+run = runner()
+run.run()
