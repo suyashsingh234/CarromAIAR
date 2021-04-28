@@ -238,6 +238,3 @@ class runner(Thread,Guigame):
         self.game.game_ender() 
     def board_state_sender(self):
         return self.game.board_state() 
-
-run = runner()
-run.run()
