@@ -8,6 +8,7 @@ import time
 from threading import Thread
 import socket
 import json
+import argparse
 
 class Guigame:
     def __init__(self):
@@ -22,6 +23,15 @@ class Guigame:
         self.num_updates=10
         self.fps=60
         self.ai=AI()
+    def parser_args(self):
+        parser = argparse.ArgumentParser(description='This program is a gui for carrom game')
+        parser.add_argument('-ip', type=str,metavar='', action='store',default='0.0.0.0',help='enter this if you want to play game over the network')
+
+        args = parser.parse_args()
+        n = args.ip
+        print(n)
+        return n
+
 # Add gamestarter to the start with the camera 
     def gamestarter (self):
         self.player1, self.player2 = start_window(self.width,self.fps)
@@ -30,7 +40,7 @@ class Guigame:
         if(self.player1 == "network"):
             self.connection = socket.socket()
             #self.connectip=input("Enter the ip address of the server to connect to \n")
-            self.connectip = '20.198.98.10'
+            self.connectip = self.parser_args()
             self.connection.connect((self.connectip,9999))
             self.player1 = self.connection.recv(1024).decode('ascii')
             self.player2 = self.connection.recv(1024).decode('ascii')
